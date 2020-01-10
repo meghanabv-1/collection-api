@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBackendTable extends Migration
+class CreateBackendsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class CreateBackendTable extends Migration
      */
     public function up()
     {
-        Schema::create('backend', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        Schema::create('backends', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('user_id');
             $table->date('date');
             $table->string('accounthead');
             $table->string('description');
@@ -32,6 +33,6 @@ class CreateBackendTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('backend');
+        Schema::dropIfExists('backends');
     }
 }

@@ -9,5 +9,4 @@ class Backendr extends Model
     protected $fillable = [
         'date', 'accounthead','description','debit','credit','cashbalance'
     ];
-}                                                                                                       
-
+}
