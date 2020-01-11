@@ -19,6 +19,5 @@ Route::post('register', 'PassportController@register');
 Route::middleware('auth:api')->group(function () {
     Route::get('user', 'PassportController@details');
  
-    Route::resource('backends', 'BackendController');
-    Route::resource('backendrs', 'BackendrController');
+    Route::resource('backends', 'API\BackendController');
 });
