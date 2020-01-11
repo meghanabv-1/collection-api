@@ -27,13 +27,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-    public function backends()
-{
-    return $this->hasMany(Backend::class);
-}
-
-public function backendrs()
-{
-    return $this->hasMany(Backendr::class);
-}
+    public function collections()
+    {
+        return $this->hasMany(Collection::class);
+    }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBackendsTable extends Migration
+class CreateCollectionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,18 @@ class CreateBackendsTable extends Migration
      */
     public function up()
     {
-        Schema::create('backends', function (Blueprint $table) {
+        Schema::create('collections', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id');
+            $table->integer('user_id')->unsigned();
             $table->date('date');
-            $table->string('accounthead');
+            $table->string('account_head');
             $table->string('description');
-            $table->integer('debit');
-            $table->integer('credit');
-            $table->integer('cashbalance');
+            $table->string('type');
+            $table->decimal('amount', 8, 2)->default(0);
+            $table->decimal('cash_balance', 8, 2);
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
@@ -33,6 +35,6 @@ class CreateBackendsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('backends');
+        Schema::dropIfExists('collections');
     }
 }

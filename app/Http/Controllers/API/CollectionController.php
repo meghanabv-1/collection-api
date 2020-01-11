@@ -4,63 +4,71 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Backend;
+use App\Collection;
 
-use Validator;
-
-class BackendController extends Controller
+class CollectionController extends Controller
 {
     public function index()
     {
-        $backends = auth()->user()->backends;
+        $collections = auth()->user()->collections;
  
         return response()->json([
             'success' => true,
-            'data' => $backends
+            'data' => $collections
         ]);
     }
  
     public function show($id)
     {
-        $bankend = auth()->user()->backends()->find($id);
+        $bankend = auth()->user()->collections()->find($id);
  
         if (!$backend) {
             return response()->json([
                 'success' => false,
                 'message' => 'backend with id ' . $id . ' not found'
-            ], 400);
+            ], 404);
         }
  
         return response()->json([
             'success' => true,
             'data' => $backend->toArray()
-        ], 400);
+        ], 200);
     }
  
     public function store(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
+    	$this->validate($request, [
     		'date' => 'required',
-            'accounthead' => 'required',
+            'account_head' => 'required',
             'description' => 'required',
-            'debit' => 'required|integer',
-            'credit' => 'required|integer',
-            'cashbalance' => 'required|integer'
+            'type' => 'required|in:debit,credit,cash_balance',
+            'amount' => 'integer',
     	]);
-
-    	if ($validator->fails()) {
-    		return response()->json(['error' => $validator->errors()], 422);
-    	}
  
-        $backend = new Backend();
+        $backend = new Collection();
         $backend->date = $request->date;
-        $backend->accounthead = $request->accounthead;
+        $backend->account_head = $request->account_head;
         $backend->description = $request->description;
-        $backend->debit = $request->debit;
-        $backend->credit = $request->credit;
-        $backend->cashbalance = $request->cashbalance;
+        $backend->type = $request->type;
+
+        if ($request->type == 'cash_balance'){
+        	$backend->cash_balance = $request->amount;
+        }
+       	else {
+       		$collection = Collection::latest()->first();
+       		$last_balance = $collection ? $collection['cash_balance'] : 0;
+
+       		if($request->type == 'debit'){
+       			$cash_balance = $last_balance - $request->amount;
+       		} else {
+       			$cash_balance = $last_balance + $request->amount;
+       		}
+
+       		$backend->amount = $request->amount;
+       		$backend->cash_balance = $cash_balance;
+       	}
  
-        if (auth()->user()->backends()->save($backend))
+        if (auth()->user()->collections()->save($backend))
             return response()->json([
                 'success' => true,
                 'data' => $backend->toArray()
@@ -74,13 +82,13 @@ class BackendController extends Controller
  
     public function update(Request $request, $id)
     {
-        $backend = auth()->user()->backends()->find($id);
+        $backend = auth()->user()->collections()->find($id);
  
         if (!$backend) {
             return response()->json([
                 'success' => false,
-                'message' => 'Backend with id ' . $id . ' not found'
-            ], 400);
+                'message' => 'Collection with id ' . $id . ' not found'
+            ], 404);
         }
  
         $updated = $backend->fill($request->all())->save();
@@ -88,33 +96,33 @@ class BackendController extends Controller
         if ($updated)
             return response()->json([
                 'success' => true
-            ]);
+            ], 201);
         else
             return response()->json([
                 'success' => false,
-                'message' => 'Backend could not be updated'
+                'message' => 'Collection could not be updated'
             ], 500);
     }
  
     public function destroy($id)
     {
-        $backend = auth()->user()->backends()->find($id);
+        $backend = auth()->user()->collections()->find($id);
  
         if (!$backend) {
             return response()->json([
                 'success' => false,
-                'message' => 'Backend with id ' . $id . ' not found'
-            ], 400);
+                'message' => 'Collection with id ' . $id . ' not found'
+            ], 404);
         }
  
         if ($backend->delete()) {
             return response()->json([
                 'success' => true
-            ]);
+            ], 204);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Backend could not be deleted'
+                'message' => 'Collection could not be deleted'
             ], 500);
         }
     }
