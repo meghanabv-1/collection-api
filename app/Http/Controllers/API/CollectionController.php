@@ -42,7 +42,7 @@ class CollectionController extends Controller
             'account_head' => 'required',
             'description' => 'required',
             'type' => 'required|in:debit,credit,cash_balance',
-            'amount' => 'integer',
+            'amount' => 'required|integer',
     	]);
  
         $backend = new Collection();
